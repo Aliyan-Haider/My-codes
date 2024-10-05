@@ -1,57 +1,63 @@
-//The necessary libraries are:
-//ctype.h
-//stdio.h
-//string.h
+//The required libraries are:
+//#include <ctype.h>
+//#include <stdint.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
-void get_int(int *n){
+int get_int(void){
 
-    //The program can work with a maximum of "input-1" figures
-    //number. To change it, assign more or less bytes to "input".
-    char input[5];
+    //Basically asking the operating system to find me two contiguous blocks of
+    //bytes somewhere in the memory, and assign the first block of it to
+    //buffer_1. If failed for whatever reason, print the message and exit the
+    //program with exit status 1.
+    char *buffer_1 = malloc(2 * sizeof(char));
+    if (buffer_1 == NULL){
 
-    //"is_number" is a flag that is by default set to 1, meaning
-    //false. The flag will be switched to true once the user
-    //enters a valid number, effectively stopping the function.
-    int is_number = 1;
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    
+    //counter is used to keep track of how many characters have been read, how
+    //many characters to reallocate based on the input size, and is also used
+    //as an index.
+    int counter = 0;
 
-    //This "while-loop" which uses the "is_number" flag will
-    //repeatedly ask the user to enter a number, until the user
-    //does.
-    while (is_number != 0){
+    //buffer_2 temporarily stores the character, to check whether or not it is
+    //an integer or a newline.
+    uint8_t buffer_2;
 
-        //Ask the user for a number, and assign it to "input".
-        printf("Number: ");
-        fgets(input, sizeof(input), stdin);
+    printf("Enter a number: ");
+    while((buffer_2 = getchar()) != '\n'){
 
-        //Remove the newline automatically placed at the end of the
-        //string by fgets, followed by '\0'.
-        int len = strlen(input);
-        if (len > 0 && input[len - 1] == '\n')
-        {
-            input[len - 1] = '\0';
+        if (isdigit(buffer_2)){
+
+            //Here, we're asking the program to reallocate bytes based on the
+            //size of the input. The address is being stored in a temporary
+            //because if an error occurs, we don't want to lose track of the
+            //data stored in buffer_1.
+            char *temp = realloc(buffer_1, (2 + counter) * sizeof(char));
+            if (temp == NULL){
+
+                free(buffer_1);
+                exit(2);
+            }
+            buffer_1 = temp;
+            buffer_1[counter] = buffer_2;
+            counter++;
+            buffer_1[counter] = '\0';
         }
-
-        //If the user input is larger than what "input" can store,
-        //clear the buffer.
-        else
-        {
-            int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-        }
-
-        //Check if the user input was number.
-        if (isdigit(input[0])){
-
-            *n = atoi(input);
-            is_number = 0;
-        }
-
-        //If not, set all the indexes of "input" to '\0' and print the
-        //message.
         else{
 
-            memset(input, '\0', sizeof(input));
+            int c;
+            while((c = getchar()) != '\n');
+
             printf("Invalid.\n");
+            free(buffer_1);
+            exit(3);
         }
     }
+    int num = atoi(buffer_1);
+    free(buffer_1);
+
+    return num;
 }

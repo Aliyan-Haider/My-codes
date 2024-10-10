@@ -1,3 +1,6 @@
+//In the file, sequence.txt, the numbers were written in this manner:
+//68, 78, 75, 69, 78, 77, 70
+
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
